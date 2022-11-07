@@ -1,25 +1,16 @@
 #!/bin/sh
 #SBATCH --account=share-ie-idi
 
-from numpy import array
 from keras.models import Sequential
-from keras.layers import LSTM
-from keras.layers import Dense
-from keras.layers import Bidirectional
 from keras.optimizers import Adam
-import numpy as np
-import time as tm
-import datetime as dt
-import tensorflow as tf
-from yahoo_fin import stock_info as yf
-from sklearn.preprocessing import MinMaxScaler
-from collections import deque
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout, Bidirectional
-from keras.losses import Huber
-import matplotlib.pyplot as plt
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, Layer
 from keras import backend as K
-from keras.layers import Layer
+
+import numpy as np
+import tensorflow as tf
+
+from collections import deque
+import matplotlib.pyplot as plt
 
 
 class attention(Layer):
@@ -72,29 +63,7 @@ class Lstm:
             seq_x, seq_y = sequence[i:end_ix], sequence[end_ix]
             X.append(seq_x)
             y.append(seq_y)
-        return array(X), array(y)
-
-def getTimeInterval():
-    date_now = tm.strftime('%Y-%m-%d')
-    date_3_years_back = ((dt.date.today() - dt.timedelta(days=1)) - dt.timedelta(days=1050)).strftime('%Y-%m-%d')
-    return date_now, date_3_years_back
-
-def scaleData(data):
-    scaler = MinMaxScaler()
-    data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
-    return data
-
-def getCleanData(stock):
-    date_now,date_3_years_back = getTimeInterval()
-    init_df = yf.get_data(
-    stock, 
-    start_date=date_3_years_back, 
-    end_date=date_now,
-    interval='1d')
-
-    init_df = init_df.drop(['open', 'high', 'low', 'adjclose', 'ticker', 'volume'], axis=1)
-    init_df['date'] = init_df.index
-    return init_df
+        return np.array(X), np.array(y)
 
 def plotCombined(data,predictions):
     for x in predictions:
@@ -109,36 +78,43 @@ def plotCombined(data,predictions):
 
 
 
-def main():
-    stock = 'KAHOT.OL'
+def run(data,pred_days,runs):
     n_features = 1
     n_steps = 7
 
     lstm = Lstm()
-    scaler = MinMaxScaler()
 
-
-    data = getCleanData(stock)
-    data_visualisation = data.copy()
-    data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
-
-
-
-    raw_seq = data['close']
-    X, y = lstm.SplitSequence(raw_seq,n_steps)
-
+    X, y = lstm.SplitSequence(data,n_steps)
     X = X.reshape((X.shape[0], X.shape[1], n_features))
-    
     model = lstm.Model(n_steps,n_features)
 
+    predictions = []
+    for x in range(runs):
+        print(data)
+        # History is loss and mae, loss = how well model predicted values, mae = mean absolute error
+        history  = model.fit(X, y, batch_size=64, epochs=20, verbose=1,validation_split=0.2)
+        x_input = np.array(data[-7:])
+        x_input = x_input.reshape((1, n_steps, n_features))
+        
+        #print(x_input)
+        #for x in range(pred_days):
+        pred = model.predict(x_input, verbose=1)
+            #np.append(x_input,pred)
+            #x_input = x_input[1:]
+        predictions.append(pred)
+    print(predictions)
+    avg_pred = sum(predictions) / len(predictions)
+    return avg_pred
 
-    # History is loss and mae, loss = how well model predicted values, mae = mean absolute error
-    history  = model.fit(X, y, batch_size=64, epochs=100, verbose=1,validation_split=0.2)
-    x_input = array(data['close'][-7:])
-    x_input = x_input.reshape((1, n_steps, n_features))
-    yhat = model.predict(x_input, verbose=1)
+    # nested = [[],[],[]]
+    # for runs:
+        # for pred_days
 
-    
+    # calculate average
+    # return [1,2,3]
+
+
+
     # plt.figure(figsize=(10, 6))
     # plt.plot(history.history['mse'], label='mse')
     # plt.plot(history.history['loss'], label='loss')
@@ -154,17 +130,11 @@ def main():
     # plt.legend(['train', 'validation'], loc='upper right')
     # plt.show()
 
-    
-    print(yhat)
+    # f = open("myfile.txt", "a")
+    # f.write(str(scaled_yhat))
+    # f.close()
 
-    scaled_yhat = scaler.inverse_transform(yhat)[0][0]
-    print(scaled_yhat)
-
-    f = open("myfile.txt", "a")
-    f.write(str(scaled_yhat))
-    f.close()
-
-    plotCombined(data_visualisation['close'],[scaled_yhat])
+    #plotCombined(data_visualisation['close'],[scaled_yhat])
 
     # p = array(data['close'])
     # p = p.reshape((1,len(p),1))
@@ -180,8 +150,3 @@ def main():
     # plt.ylabel("Value")
     # plt.legend()
     # plt.show()
-
-
-
-
-main()
