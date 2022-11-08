@@ -3,7 +3,7 @@
 
 from keras.models import Sequential
 from keras.optimizers import Adam
-from keras.layers import Dense, LSTM, Dropout, Bidirectional
+from keras.layers import Dense, LSTM, Dropout, Bidirectional, Layer
 from keras import backend as K
 
 import numpy as np
@@ -12,11 +12,37 @@ import tensorflow as tf
 from collections import deque
 import matplotlib.pyplot as plt
 
+
+class attention(Layer):
+    def __init__(self, return_sequences=True):
+        self.return_sequences = return_sequences
+        super(attention,self).__init__()
+
+    def build(self, input_shape):
+        self.W=self.add_weight(name="att_weight", shape=(input_shape[-1],1),
+                               initializer="normal")
+        self.b=self.add_weight(name="att_bias", shape=(input_shape[1],1),
+                               initializer="normal")
+        super(attention,self).build(input_shape)
+
+
+    def call(self, x):
+        e = K.tanh(K.dot(x,self.W)+self.b)
+        a = K.softmax(e, axis=1)
+        output = x*a
+        if self.return_sequences:
+            return output
+        return K.sum(output, axis=1)
+
+
+
 class Lstm:
+    
     def Model(self,n_steps,n_features):
         model = Sequential()
         model.add(LSTM(60, activation='relu', return_sequences=True, input_shape=(n_steps, n_features)))
         model.add(Dropout(0.5))
+        model.add(attention())
         model.add(LSTM(120, activation='relu'))
         model.add(Dropout(0.5))
         model.add(Dense(20))
@@ -49,7 +75,7 @@ class Lstm:
 
 
 
-def lstm_main(data,pred_days,runs):
+def lstmAttentionMain(data,pred_days,runs):
     n_features = 1
     n_steps = 7
 
@@ -70,43 +96,5 @@ def lstm_main(data,pred_days,runs):
             pred = model.predict(x_input, verbose=1)
             predictions[x].append(pred[0][0])
             new_data = np.append(new_data,pred)
-    print(predictions)
     avg_result = [np.mean(num_list) for num_list in predictions]
-    print(avg_result)
     return avg_result
-
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(history.history['mse'], label='mse')
-    # plt.plot(history.history['loss'], label='loss')
-    # plt.legend()
-    # plt.show()
-
-
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['val_loss'])
-    # plt.title('model train vs validation loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'validation'], loc='upper right')
-    # plt.show()
-
-    # f = open("myfile.txt", "a")
-    # f.write(str(scaled_yhat))
-    # f.close()
-
-    #plotCombined(data_visualisation['close'],[scaled_yhat])
-
-    # p = array(data['close'])
-    # p = p.reshape((1,len(p),1))
-
-    # forecast = model.predict(p)
-    # print(forecast)
-    # actual = data['close']
-
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(forecast, label="predicted")
-    # plt.plot(actual, label="actual")
-    # plt.xlabel("Timestep")
-    # plt.ylabel("Value")
-    # plt.legend()
-    # plt.show()
