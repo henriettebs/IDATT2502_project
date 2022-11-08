@@ -3,11 +3,11 @@ import time as tm
 import datetime as dt
 from yahoo_fin import stock_info as yf
 import numpy as np
-from models.Lstm.lstm import run
-
+from models.Lstm.lstm import lstm_main
+from models.LstmAttention.lstmAttention import lstmAttentionMain
 def getTimeInterval():
     date_now = tm.strftime('%Y-%m-%d')
-    date_3_years_back = ((dt.date.today() - dt.timedelta(days=1)) - dt.timedelta(days=1200)).strftime('%Y-%m-%d')
+    date_3_years_back = ((dt.date.today() - dt.timedelta(days=2)) - dt.timedelta(days=1200)).strftime('%Y-%m-%d')
     return date_now, date_3_years_back
 
 def scaleData(data):
@@ -28,7 +28,7 @@ def getCleanData(stock):
     return init_df
 
 def main():
-    stock = 'KAHOT.OL'
+    stock = 'AMZN'
 
     scaler = MinMaxScaler()
     data = getCleanData(stock)
@@ -36,13 +36,18 @@ def main():
     data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
     raw_seq = data['close']
 
-    # input is data - pred_days - runs
-    yhat =  run(raw_seq,3,1)
-    rescaled_yhat = scaler.inverse_transform(yhat)[0][0]
-    print(rescaled_yhat)
+    #input is data - pred_days - runs
+    scaled_lstm =  lstm_main(raw_seq,2,1)
+    descaled_lstm = []
+    for avg in scaled_lstm:
+        descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
+    scaled_lstm_attention =  lstmAttentionMain(raw_seq,2,1)
+    descaled_lstm_attention = []
+    for avg in scaled_lstm_attention:
+        descaled_lstm_attention.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-
-    lstm = []
-
+    print(descaled_lstm)
+    print(descaled_lstm_attention)
 main()
+
