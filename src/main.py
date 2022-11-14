@@ -50,5 +50,14 @@ def main():
 
     #print(descaled_lstm)
     print(descaled_bi_lstm)
+
+
+    # writeFile = open("src/graphs/main.txt", "w")
+    # writeFile.write("Values LSTM: \n")
+    # writeFile.writelines(str(descaled_lstm) + "\n")
+
+    # writeFile.write("Values LSTM ATTENTION: \n")
+    # writeFile.writelines(str(descaled_lstm_attention) + "\n")
+    # writeFile.close()
 main()
 
