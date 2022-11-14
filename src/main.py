@@ -34,45 +34,39 @@ def main():
 
     scaler = MinMaxScaler()
     data = getCleanData(stock) 
-    data_visualisation = data.copy()
-    data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
-    data = np.append(data,0.005)
-    # raw_seq = scaleData(data) # Ny
-    raw_seq = data['close'] # dato  verdi
+    # data_visualisation = data.copy()
+    # scaleData(data_visualisation)
+    # raw_seq = data['close'] # dato  verdi
     # print(data)
     
 
     #input is data - pred_days - runs
-    scaled_lstm =  lstm_main(raw_seq,4,1)
-    descaled_lstm = []
-    for avg in scaled_lstm:
-        descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    # scaled_lstm =  lstm_main(raw_seq,4,1)
+    # descaled_lstm = []
+    # for avg in scaled_lstm:
+    #     descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    scaled_lstm_attention =  lstmAttentionMain(raw_seq,2,1)
-    descaled_lstm_attention = []
-    for avg in scaled_lstm_attention:
-        descaled_lstm_attention.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    # scaled_lstm_attention =  lstmAttentionMain(raw_seq,2,1)
+    # descaled_lstm_attention = []
+    # for avg in scaled_lstm_attention:
+    #     descaled_lstm_attention.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
 
     plt.style.use(style='seaborn-v0_8') 
     plt.figure(figsize=(16,10))
-    plt.plot(data['close'][-200:]) # Noe her?
-    # plt.plot(raw_seq) # Ny
+    plt.plot(data['close'][-200:])
     plt.xlabel("days")
     plt.ylabel("price")
     plt.legend([f'Actual price for {stock}'])
     plt.show()
 
-    # print(descaled_lstm)
-    # print(descaled_lstm_attention)
+    # writeFile = open("src/graphs/main.txt", "w")
+    # writeFile.write("Values LSTM: \n")
+    # writeFile.writelines(str(descaled_lstm) + "\n")
 
-    writeFile = open("src/graphs/main.txt", "w")
-    writeFile.write("Values LSTM: \n")
-    writeFile.writelines(str(descaled_lstm) + "\n")
-
-    writeFile.write("Values LSTM ATTENTION: \n")
-    writeFile.writelines(str(descaled_lstm_attention) + "\n")
-    writeFile.close()
+    # writeFile.write("Values LSTM ATTENTION: \n")
+    # writeFile.writelines(str(descaled_lstm_attention) + "\n")
+    # writeFile.close()
     
 main()
 
