@@ -4,7 +4,7 @@ import datetime as dt
 from yahoo_fin import stock_info as yf
 import numpy as np
 from models.lstm.lstm import lstm_main
-from models.bidirectionallstm.bilstm import bi_lstm_main
+from models.bilstm.bilstm import bi_lstm_main
 
 def get_time_interval():
     date_now = tm.strftime('%Y-%m-%d')
