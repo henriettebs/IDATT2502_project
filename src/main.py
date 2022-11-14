@@ -3,22 +3,21 @@ import time as tm
 import datetime as dt
 from yahoo_fin import stock_info as yf
 import numpy as np
-from models.Lstm.lstm import lstm_main
-from models.LstmAttention.lstmAttention import lstmAttentionMain
-import matplotlib.pyplot as plt
+from models.lstm.lstm import lstm_main
+from models.bilstm.bilstm import bi_lstm_main
 
-def getTimeInterval():
+def get_time_interval():
     date_now = tm.strftime('%Y-%m-%d')
     date_3_years_back = ((dt.date.today() - dt.timedelta(days=2)) - dt.timedelta(days=1200)).strftime('%Y-%m-%d')
     return date_now, date_3_years_back
 
-def scaleData(data):
+def scale_data(data):
     scaler = MinMaxScaler()
     data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
     return data
 
-def getCleanData(stock):
-    date_now,date_3_years_back = getTimeInterval()
+def get_clean_data(stock):
+    date_now,date_3_years_back = get_time_interval()
     init_df = yf.get_data(
     stock, 
     start_date=date_3_years_back, 
@@ -33,32 +32,25 @@ def main():
     stock = 'AMZN'
 
     scaler = MinMaxScaler()
-    data = getCleanData(stock) 
-    # data_visualisation = data.copy()
-    # scaleData(data_visualisation)
-    # raw_seq = data['close'] # dato  verdi
-    # print(data)
-    
+    data = get_clean_data(stock)
+    data_visualisation = data.copy()
+    data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
+    raw_seq = data['close']
 
     #input is data - pred_days - runs
-    # scaled_lstm =  lstm_main(raw_seq,4,1)
+    # scaled_lstm =  lstm_main(raw_seq,1,1,True)
     # descaled_lstm = []
     # for avg in scaled_lstm:
     #     descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    # scaled_lstm_attention =  lstmAttentionMain(raw_seq,2,1)
-    # descaled_lstm_attention = []
-    # for avg in scaled_lstm_attention:
-    #     descaled_lstm_attention.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    scaled_bi_lstm =  bi_lstm_main(raw_seq,2,1,False)
+    descaled_bi_lstm= []
+    for avg in scaled_bi_lstm:
+        descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
+    #print(descaled_lstm)
+    print(descaled_bi_lstm)
 
-    plt.style.use(style='seaborn-v0_8') 
-    plt.figure(figsize=(16,10))
-    plt.plot(data['close'][-200:])
-    plt.xlabel("days")
-    plt.ylabel("price")
-    plt.legend([f'Actual price for {stock}'])
-    plt.show()
 
     # writeFile = open("src/graphs/main.txt", "w")
     # writeFile.write("Values LSTM: \n")
@@ -67,6 +59,5 @@ def main():
     # writeFile.write("Values LSTM ATTENTION: \n")
     # writeFile.writelines(str(descaled_lstm_attention) + "\n")
     # writeFile.close()
-    
 main()
 
