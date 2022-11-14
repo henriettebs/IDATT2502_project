@@ -48,7 +48,6 @@ class Lstm:
 #     plt.show()
 
 
-
 def lstm_main(data,pred_days,runs):
     n_features = 1
     n_steps = 7
@@ -63,17 +62,20 @@ def lstm_main(data,pred_days,runs):
         new_data = data
         # History is loss and mae, loss = how well model predicted values, mae = mean absolute error
         model = lstm.Model(n_steps,n_features)
-        history  = model.fit(X, y, batch_size=64, epochs=100, verbose=1,validation_split=0.2)
+        history  = model.fit(X, y, batch_size=64, epochs=10, verbose=1,validation_split=0.2) # epochs=100
         for x in range(pred_days):
             x_input = np.array(new_data[-7:])
             x_input = x_input.reshape((1, n_steps, n_features))
             pred = model.predict(x_input, verbose=1)
             predictions[x].append(pred[0][0])
             new_data = np.append(new_data,pred)
-    print(predictions)
     avg_result = [np.mean(num_list) for num_list in predictions]
-    print(avg_result)
+    # print("AVERAGE RESULT LSTM: " + str(avg_result)) # Printer liste av predictions
+    # TODO: prøv å plotte rå data med predikerte dager i tillegg, se notebook?
+
     return avg_result
+
+    
 
     # plt.figure(figsize=(10, 6))
     # plt.plot(history.history['mse'], label='mse')
