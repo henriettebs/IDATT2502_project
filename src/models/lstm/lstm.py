@@ -55,10 +55,14 @@ def lstm_main(data,pred_days,runs,add_attention):
             pred = model.predict(x_input, verbose=1)
             predictions[x].append(pred[0][0])
             new_data = np.append(new_data,pred)
-    print(predictions)
     avg_result = [np.mean(num_list) for num_list in predictions]
-    print(avg_result)
-    # Function for shwowing loss on method
+    # print("AVERAGE RESULT LSTM: " + str(avg_result)) # Printer liste av predictions
+    # TODO: prøv å plotte rå data med predikerte dager i tillegg, se notebook?
+
+    return avg_result
+
+    
+
     # plt.figure(figsize=(10, 6))
     # plt.plot(history.history['mse'], label='mse')
     # plt.plot(history.history['loss'], label='loss')
