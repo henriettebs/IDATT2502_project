@@ -58,13 +58,14 @@ def lstm_main(data,pred_days,runs,add_attention):
     print(predictions)
     avg_result = [np.mean(num_list) for num_list in predictions]
     print(avg_result)
-    return avg_result
-
+    # Function for shwowing loss on method
     # plt.figure(figsize=(10, 6))
     # plt.plot(history.history['mse'], label='mse')
     # plt.plot(history.history['loss'], label='loss')
     # plt.legend()
     # plt.show()
+    return avg_result
+
 
 
     # plt.plot(history.history['loss'])
