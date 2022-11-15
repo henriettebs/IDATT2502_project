@@ -15,12 +15,11 @@ class Lstm:
     def Model(self,n_steps,n_features,add_attention):
         model = Sequential()
         model.add(LSTM(60, activation='relu', return_sequences=True, input_shape=(n_steps, n_features)))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.3))
         if(add_attention):
             model.add(attention())
         model.add(LSTM(120, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(20))
+        model.add(Dropout(0.3))
         model.add(Dense(1))
         opt = Adam(learning_rate=0.0001)
         model.compile(optimizer=opt, loss='mse', metrics=['mse'])
