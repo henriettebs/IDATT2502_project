@@ -5,6 +5,8 @@ from yahoo_fin import stock_info as yf
 import numpy as np
 from models.lstm.lstm import lstm_main
 from models.bilstm.bilstm import bi_lstm_main
+import matplotlib.pyplot as plt
+import pandas as pd
 
 def get_time_interval():
     date_now = tm.strftime('%Y-%m-%d')
@@ -30,7 +32,6 @@ def get_clean_data(stock):
 
 def main():
     stock = 'AMZN'
-
     scaler = MinMaxScaler()
     data = get_clean_data(stock)
     data_visualisation = data.copy()
@@ -38,18 +39,18 @@ def main():
     raw_seq = data['close']
 
     #input is data - pred_days - runs
-    # scaled_lstm =  lstm_main(raw_seq,1,1,True)
-    # descaled_lstm = []
-    # for avg in scaled_lstm:
-    #     descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    scaled_lstm =  lstm_main(raw_seq,1,1,True)
+    descaled_lstm = []
+    for avg in scaled_lstm:
+        descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    scaled_bi_lstm =  bi_lstm_main(raw_seq,2,1,False)
-    descaled_bi_lstm= []
-    for avg in scaled_bi_lstm:
-        descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    # scaled_bi_lstm =  bi_lstm_main(raw_seq,2,1,False)
+    # descaled_bi_lstm= []
+    # for avg in scaled_bi_lstm:
+    #     descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    #print(descaled_lstm)
-    print(descaled_bi_lstm)
+    print(descaled_lstm)
+    #print(descaled_bi_lstm)
 
 
     # writeFile = open("src/graphs/main.txt", "w")
