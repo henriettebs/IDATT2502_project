@@ -5,6 +5,7 @@ from yahoo_fin import stock_info as yf
 import numpy as np
 from models.lstm.lstm import lstm_main
 from models.bilstm.bilstm import bi_lstm_main
+from graphs.graphs import make_graph
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -39,26 +40,34 @@ def main():
     raw_seq = data['close']
 
     #input is data - pred_days - runs
-    scaled_lstm =  lstm_main(raw_seq,1,1,True)
-    descaled_lstm = []
-    for avg in scaled_lstm:
-        descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    # scaled_lstm =  lstm_main(raw_seq,3,1,True)
+    # descaled_lstm = []
+    # for avg in scaled_lstm:
+    #     descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
     # scaled_bi_lstm =  bi_lstm_main(raw_seq,2,1,False)
     # descaled_bi_lstm= []
     # for avg in scaled_bi_lstm:
     #     descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    print(descaled_lstm)
+    #print(descaled_lstm)
     #print(descaled_bi_lstm)
 
 
+    make_graph(data_visualisation,[[50,25,35],[150,150,150],[100,100,100]],stock)
     # writeFile = open("src/graphs/main.txt", "w")
-    # writeFile.write("Values LSTM: \n")
     # writeFile.writelines(str(descaled_lstm) + "\n")
 
-    # writeFile.write("Values LSTM ATTENTION: \n")
-    # writeFile.writelines(str(descaled_lstm_attention) + "\n")
+    # # writeFile.write("Values LSTM ATTENTION: \n")
+    # # writeFile.writelines(str(descaled_lstm_attention) + "\n")
     # writeFile.close()
+
+    # readFile = open("src/graphs/main.txt", "r")
+    # pred = readFile.readlines()
+    # print(raw_seq)
+    # print(pred)
+
+    # readFile.close()
+
 main()
 
