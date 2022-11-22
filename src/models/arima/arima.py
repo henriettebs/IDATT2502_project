@@ -1,8 +1,3 @@
- 
-#Kilde brukt for INSPO til Arima "SARIMAX"
-# https://www.kaggle.com/code/sainischala/stock-prices-predictor-using-arima
-
-
 import pandas as pd
 import numpy as np
 import yfinance as yf
@@ -15,41 +10,41 @@ from pmdarima.arima import auto_arima
 import statsmodels.api as sm
 import warnings
 
-def arima_main(scaled_raw_data, nr_of_days_for_prediction):
+def arima_main(nr_days):
         
-    # today = date.today()
-    # d1 = today.strftime('%Y-%m-%d')
-    # end_date = d1
-    # d2 = date.today() - timedelta(days=365)
-    # d2 = d2.strftime('%Y-%m-%d')
-    # start_date = d2
+    today = date.today()
+    d1 = today.strftime('%Y-%m-%d')
+    end_date = d1
+    d2 = date.today() - timedelta(days=365)
+    d2 = d2.strftime('%Y-%m-%d')
+    start_date = d2
 
-    # data = yf.download('AAPL',
-    #                     start=start_date,
-    #                     end=end_date,
-    #                     progress=False)
+    scaled_raw_data = yf.download('AAPL',
+                        start=start_date,
+                        end=end_date,
+                        progress=False)
 
     scaled_raw_data.dropna()
     scaled_raw_data = scaled_raw_data.reset_index()
     #print("INDEX DATA.RESET ------ HEAD BELOW")
-    #print(new_data.head())
+    #print(scaled_raw_data.head())
     scaled_raw_data['Date'] = scaled_raw_data.index
     scaled_raw_data['Date'] = pd.to_datetime(scaled_raw_data.Date, format='%Y-%m-%d')
     scaled_raw_data.index = scaled_raw_data['Date']
-    #scaled_raw_data = scaled_raw_data[['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']]
+    scaled_raw_data = scaled_raw_data[['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']]
     scaled_raw_data.reset_index(drop=True, inplace=True)
     #print("DATA TAIL() ->>>>>>>", scaled_raw_data.tail())
     #print("-------HEAD BELOW-------")
-    #print(new_data.head())
-    #print("--------TAIL BELOW---------")
-    #print(new_data.tail())
-    #scaled_raw_data = scaled_raw_data[["Date", "Close"]]
+    #print(scaled_raw_data.head())
+    # print("--------TAIL BELOW---------")
+    # print(scaled_raw_data.tail())
+    scaled_raw_data = scaled_raw_data[["Date", "Close"]]
     #print("DATA TAIL: ------", scaled_raw_data.tail())
 
 
-    #scaled_raw_data = scaled_raw_data[['Date', 'Close']]
+    scaled_raw_data = scaled_raw_data[['Date', 'Close']]
     #print("--------DATE & CLOSE TAIL BELOW -----------")
-    #print(new_data.head(), new_data.tail())
+    #print(scaled_raw_data.head(), scaled_raw_data.tail())
 
 
     #data only containing 'Close' Column
@@ -57,25 +52,25 @@ def arima_main(scaled_raw_data, nr_of_days_for_prediction):
     #print("NEW_DFCLOSE BELOW \n\n",new_dfclose)
 
     # -------------PLOT FOR ORIGINAL GRAPH WITH ONLY CLOSE AND DATE
-    plt.style.use('fivethirtyeight')
-    plt.figure(figsize=(15,10))
-    plt.plot(scaled_raw_data['Date'], scaled_raw_data['Close'])
-    plt.show()
+    # plt.style.use('fivethirtyeight')
+    # plt.figure(figsize=(15,10))
+    # plt.plot(scaled_raw_data['Date'], scaled_raw_data['Close'])
+    # plt.show()
 
 
-    result = seasonal_decompose(scaled_raw_data['Close'], model='multiplicative', period=30)
-    print("RESULT FROM SEASONAL_DECOMPOSE\n", result)
-    #fig = plt.figure()
-    #fig = result.plot()
-    #fig.set_size_inches(15,10)
-    #plt.show()
+    # result = seasonal_decompose(scaled_raw_data['Close'], model='multiplicative', period=30)
+    # print("RESULT FROM SEASONAL_DECOMPOSE\n", result)
+    # fig = plt.figure()
+    # fig = result.plot()
+    # fig.set_size_inches(15,10)
+    # plt.show()
 
-    pd.plotting.autocorrelation_plot(scaled_raw_data['Close'])
-    #plt.show()
+    # pd.plotting.autocorrelation_plot(scaled_raw_data['Close'])
+    # plt.show()
 
 
-    plot_pacf(scaled_raw_data['Close'], lags=100)
-    #plt.show()
+    # plot_pacf(scaled_raw_data['Close'], lags=100)
+    # plt.show()
 
     #Setup auto_arima for p, d, q, values
     df_log = np.log(scaled_raw_data['Close'])
@@ -98,7 +93,7 @@ def arima_main(scaled_raw_data, nr_of_days_for_prediction):
                                 error_action='ignore',
                                 suppress_warnings=True,
                                 stepwise=True)
-    print(model_autoARIMA.summary())
+    #print(model_autoARIMA.summary())
 
     # auto_arima gives values for best model = ARIMA(0,1,0)(0,0,0)
 
@@ -109,14 +104,14 @@ def arima_main(scaled_raw_data, nr_of_days_for_prediction):
                                         seasonal_order=(p,d,q,12))
 
     model = model.fit()
-    print(model.summary())
-    # output from the predictions -> second parameter is number of days to predict
-    predictions = model.predict(len(scaled_raw_data), len(scaled_raw_data) + 10)
-    print(predictions)
-    return predictions
-    
 
-    # data['Close'].plot(legend=True, label='Training Data', figsize=(15,10))
+    #print(model.summary())
+    # output from the predictions -> second parameter is number of days to predict
+    predictions = model.predict(len(scaled_raw_data), len(scaled_raw_data) + nr_days)
+
+
+    # scaled_raw_data['Close'].plot(legend=True, label='Training Data', figsize=(15,10))
     # predictions.plot(legend=True, label='Predictions')
     # plt.legend()
     # plt.show()
+    return predictions._values.tolist()
