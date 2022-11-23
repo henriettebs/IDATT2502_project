@@ -32,7 +32,7 @@ def get_clean_data(stock):
     return init_df
 
 def main():
-    stock = 'AMZN'
+    stock = 'AAPL'
     scaler = MinMaxScaler()
     data = get_clean_data(stock)
     data_visualisation = data.copy()
@@ -54,7 +54,7 @@ def main():
     #print(descaled_bi_lstm)
 
 
-    make_graph(data_visualisation,[[50,25,35],[150,150,150],[100,100,100]],stock)
+    make_graph(data_visualisation,[[95.65, 92.93, 92.72],[145.78, 146.25, 146.01],[140.03, 135.45, 133.91],[148.05, 148.18, 147.99]],stock)
     # writeFile = open("src/graphs/main.txt", "w")
     # writeFile.writelines(str(descaled_lstm) + "\n")
 

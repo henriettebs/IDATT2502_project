@@ -20,5 +20,8 @@ def make_graph(data,predictions, stock):
     plt.xlabel('days')
     plt.ylabel('price')
     plt.legend([f'Actual price for {stock}', 
-                f'Predicted price for future 3 days'])
+                f'Predicted price, LSTM',
+                f'Predicted price, LSTM with attention',
+                f'Predicted price, BI-LSTM',
+                f'Predicted price, BI-LSTM with attention',])
     plt.show()
