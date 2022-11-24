@@ -5,6 +5,7 @@ from yahoo_fin import stock_info as yf
 import numpy as np
 from models.lstm.lstm import lstm_main
 from models.bilstm.bilstm import bi_lstm_main
+from models.arima.arima import arima_main
 from graphs.graphs import make_graph
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -50,7 +51,8 @@ def main():
     # for avg in scaled_bi_lstm:
     #     descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
 
-    #print(descaled_lstm)
+    print("[2020-06-06 : 2022-11-20]\n",arima_main(3))
+    print(descaled_lstm)
     #print(descaled_bi_lstm)
 
 
