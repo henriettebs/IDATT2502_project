@@ -48,7 +48,7 @@ def lstm_main(data,pred_days,runs,add_attention):
         new_data = data
         # History is loss and mae, loss = how well model predicted values, mae = mean absolute error
         model = lstm.Model(n_steps,n_features,add_attention)
-        history  = model.fit(X, y, batch_size=64, epochs=100, verbose=1,validation_split=0.3)
+        history  = model.fit(X, y, batch_size=64, epochs=10, verbose=1,validation_split=0.3) #epochs=100
         for x in range(pred_days):
             x_input = np.array(new_data[-7:])
             x_input = x_input.reshape((1, n_steps, n_features))
