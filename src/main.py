@@ -9,18 +9,13 @@ from graphs.graphs import make_graph
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def get_time_interval():
-    date_start = (dt.date.today() - dt.timedelta(days=3)).strftime('%Y-%m-%d')
-    date_end = (dt.date.today() - dt.timedelta(days=1000)).strftime('%Y-%m-%d')
+def get_time_interval(s,e):
+    date_start = (dt.date.today() - dt.timedelta(days=s)).strftime('%Y-%m-%d')
+    date_end = (dt.date.today() - dt.timedelta(days=e)).strftime('%Y-%m-%d')
     return date_start, date_end
 
-def scale_data(data):
-    scaler = StandardScaler()
-    data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
-    return data
-
-def get_clean_data(stock):
-    date_start,date_end = get_time_interval()
+def get_clean_data(stock,s,e):
+    date_start,date_end = get_time_interval(s,e)
     init_df = yf.get_data(
     stock, 
     start_date=date_end, 
@@ -34,7 +29,7 @@ def get_clean_data(stock):
 def main():
     stock = 'AAPL'
     scaler = MinMaxScaler()
-    data,date_start,date_end = get_clean_data(stock)
+    data,date_start,date_end = get_clean_data(stock,4,1000)
     data_visualisation = data.copy()
     data['close'] = scaler.fit_transform(np.expand_dims(data['close'].values, axis=1))
     raw_seq = data['close']
@@ -54,41 +49,48 @@ def main():
     descaled_bi_lstm = []
     for avg in scaled_bi_lstm:
         descaled_bi_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
-    print("done with third \n")
 
     scaled_bi_lstm_attention,bi_lstm_attention_history =  bi_lstm_main(raw_seq,3,1,True)
     descaled_bi_lstm_attention = []
     for avg in scaled_bi_lstm_attention:
         descaled_bi_lstm_attention.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
-    print("done with \n")
     
     plt.figure(figsize=(10, 6))
     plt.title('LSTM')
     plt.plot(lstm_history.history['loss'], label='LSTM')
     plt.plot(lstm_attention_history.history['loss'], label='LSTM-A')
-    #plt.plot(bi_lstm_history.history['loss'], label='BI-LSTM')
-    #plt.plot(bi_lstm_attention_history.history['loss'], label='BI-LSTM-A')
+    plt.plot(bi_lstm_history.history['loss'], label='BI-LSTM')
+    plt.plot(bi_lstm_attention_history.history['loss'], label='BI-LSTM-A')
     plt.legend()
     plt.show()
 
+    temp = []
+    temp.append(descaled_lstm)
+    temp.append(descaled_lstm_attention)
+    temp.append(descaled_bi_lstm)
+    temp.append(descaled_bi_lstm_attention)
+    data_real,date_start,date_end = get_clean_data(stock,1,10)
+    values = data_real['close'].values
+    values = values[::-1]
+    temp.append([values[2],values[1],values[0]])
 
-    #make_graph(data_visualisation,[[50,25,35],[150,150,150],[100,100,100]],stock)
-    writeFile = open("aapl_values.txt", "w")
-    writeFile.write(str(date_end) + " : " + str(date_start) + "\n")
+    make_graph(data_visualisation,temp,stock)
+    # writeFile = open("aapl_values.txt", "w")
+    # writeFile.write(str(date_end) + " : " + str(date_start) + "\n")
 
-    writeFile.write("LSTM: \n")
-    writeFile.writelines(str(descaled_lstm) + "\n")
+    # writeFile.write("LSTM: \n")
+    # writeFile.writelines(str(descaled_lstm) + "\n")
 
-    writeFile.write("LSTM-A: \n")
-    writeFile.writelines(str(descaled_lstm_attention) + "\n")
+    # writeFile.write("LSTM-A: \n")
+    # writeFile.writelines(str(descaled_lstm_attention) + "\n")
 
-    writeFile.write("BI-LSTM: \n")
-    writeFile.writelines(str(descaled_bi_lstm) + "\n")
+    # writeFile.write("BI-LSTM: \n")
+    # writeFile.writelines(str(descaled_bi_lstm) + "\n")
 
-    writeFile.write("BI-LSTM-A: \n")
-    writeFile.writelines(str(descaled_bi_lstm_attention) + "\n")
+    # writeFile.write("BI-LSTM-A: \n")
+    # writeFile.writelines(str(descaled_bi_lstm_attention) + "\n")
 
-    writeFile.close()
+    # writeFile.close()
 
     # readFile = open("src/graphs/main.txt", "r")
     # pred = readFile.readlines()
