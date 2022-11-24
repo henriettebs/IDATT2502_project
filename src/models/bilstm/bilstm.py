@@ -15,14 +15,15 @@ class Lstm:
     
     def Model(self,n_steps,n_features,add_attention):
         model = Sequential()
-        model.add(Bidirectional(LSTM(50, activation='relu', return_sequences=True, input_shape=(n_steps, n_features))))
         if(add_attention):
+            model.add(Bidirectional(LSTM(60, activation='relu', return_sequences=True, input_shape=(n_steps, n_features))))
             model.add(attention())
+        else: 
+            model.add(Bidirectional(LSTM(60, activation='relu', return_sequences=False, input_shape=(n_steps, n_features))))
         model.add(Dropout(0.3))
         model.add(Dense(1))
         opt = Adam(learning_rate=0.0001)
         model.compile(optimizer=opt, loss='mean_squared_error', metrics=['mse'])
-        print(model.summary())
         return model
 
     def split_sequence(self,sequence, n_steps):
@@ -48,13 +49,12 @@ def bi_lstm_main(data,pred_days,runs,add_attention):
         new_data = data
         # History is loss and mae, loss = how well model predicted values, mae = mean absolute error
         model = lstm.Model(n_steps,n_features,add_attention)
-        history  = model.fit(X, y, batch_size=64, epochs=70, verbose=0,validation_split=0.3)
+        history  = model.fit(X, y, batch_size=64, epochs=70, verbose=1,validation_split=0.3)
         for x in range(pred_days):
             x_input = np.array(new_data[-7:])
             x_input = x_input.reshape((1, n_steps, n_features))
             pred = model.predict(x_input, verbose=1)
             predictions[x].append(pred[0][0])
             new_data = np.append(new_data,pred)
-        print(str(x) + " / " + str(runs))
     avg_result = [np.mean(num_list) for num_list in predictions]
     return avg_result,history
