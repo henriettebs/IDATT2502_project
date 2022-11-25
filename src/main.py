@@ -5,6 +5,7 @@ from yahoo_fin import stock_info as yf
 import numpy as np
 from models.lstm.lstm import lstm_main
 from models.bilstm.bilstm import bi_lstm_main
+#from models.arima.arima import arima_main
 from graphs.graphs import make_graph
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -63,7 +64,9 @@ def main():
     plt.plot(bi_lstm_attention_history.history['loss'], label='BI-LSTM-A')
     plt.legend()
     plt.show()
-
+    
+    #print("[2020-06-06 : 2022-11-20]\n",arima_main(3))
+  
     temp = []
     temp.append(descaled_lstm)
     temp.append(descaled_lstm_attention)
