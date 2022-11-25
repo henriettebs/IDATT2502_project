@@ -3,7 +3,7 @@ import time as tm
 import datetime as dt
 from yahoo_fin import stock_info as yf
 import numpy as np
-from models.lstm.lstm import lstm_main
+from models.Lstm.lstm import lstm_main
 from models.bilstm.bilstm import bi_lstm_main
 #from models.arima.arima import arima_main
 from graphs.graphs import make_graph
@@ -36,10 +36,17 @@ def main():
     raw_seq = data['close']
 
     #input is data - pred_days - runs
-    scaled_lstm,lstm_history =  lstm_main(raw_seq,3,1,False)
+    runs = 1
+    scaled_lstm,lstm_history, hist =  lstm_main(raw_seq,3,runs,False)
     descaled_lstm = []
     for avg in scaled_lstm:
         descaled_lstm.append(scaler.inverse_transform(np.array(avg).reshape(-1,1))[0][0])
+    #for i in scaled_lstm:
+    print(hist[0].history['loss'])
+    a = hist[0].history['loss']
+    print("STANDARD DEVIATION HERE:  ")
+    stand = np.std(a)
+    print(stand)
     
     scaled_lstm_attention,lstm_attention_history =  lstm_main(raw_seq,3,1,True)
     descaled_lstm_attention = []
