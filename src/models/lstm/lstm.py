@@ -57,4 +57,4 @@ def lstm_main(data,pred_days,runs,add_attention):
     avg_result = [np.mean(num_list) for num_list in predictions]
     
 
-    return avg_result,history,hist
+    return avg_result,hist

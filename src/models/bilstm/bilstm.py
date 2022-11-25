@@ -42,10 +42,12 @@ def bi_lstm_main(data,pred_days,runs,add_attention):
     X = X.reshape((X.shape[0], X.shape[1], n_features))
 
     predictions = [[] for x in range(pred_days)]
+    hist = []
     for x in range(runs):
         new_data = data
         model = lstm.Model(n_steps,n_features,add_attention)
         history  = model.fit(X, y, batch_size=64, epochs=50, verbose=1,validation_split=0.3)
+        hist = np.append(hist, history)
         for x in range(pred_days):
             x_input = np.array(new_data[-20:])
             x_input = x_input.reshape((1, n_steps, n_features))
@@ -53,4 +55,4 @@ def bi_lstm_main(data,pred_days,runs,add_attention):
             predictions[x].append(pred[0][0])
             new_data = np.append(new_data,pred)
     avg_result = [np.mean(num_list) for num_list in predictions]
-    return avg_result,history
+    return avg_result,hist
